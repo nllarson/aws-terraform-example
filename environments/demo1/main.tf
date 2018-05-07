@@ -16,10 +16,6 @@ resource "aws_vpc" "vpc" {
   }
 }
 
-##################################
-# SUBNETS
-##################################
-
 resource "aws_subnet" "subnet_1" {
   availability_zone       = "us-east-1a"
   cidr_block              = "10.150.0.0/24"
@@ -71,67 +67,6 @@ resource "aws_route_table_association" "public_subnet_1_association" {
 resource "aws_route_table_association" "public_subnet_2_association" {
   subnet_id      = "${aws_subnet.subnet_2.id}"
   route_table_id = "${aws_vpc.vpc.main_route_table_id}"
-}
-
-##################################
-# SECURITY GROUPS
-##################################
-
-resource "aws_security_group" "lb_sg" {
-  name        = "demo1-lb-sg"
-  description = "AWS Meetup - demo1 - lb security group"
-  vpc_id      = "${aws_vpc.vpc.id}"
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags {
-    Name        = "demo1-lb-sg"
-    Environment = "demo1"
-  }
-}
-
-resource "aws_security_group" "www_sg" {
-  name        = "demo1-www-sg"
-  description = "AWS Meetup - demo1 - www security group"
-  vpc_id      = "${aws_vpc.vpc.id}"
-
-  ingress {
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
-    security_groups = ["${aws_security_group.lb_sg.id}"]
-  }
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["68.96.28.240/32"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags {
-    Name        = "demo1-www-sg"
-    Environment = "demo1"
-  }
 }
 
 ##################################
@@ -188,6 +123,31 @@ resource "aws_alb_listener_rule" "lb-listener-rule" {
   condition {
     field  = "path-pattern"
     values = ["/*"]
+  }
+}
+
+resource "aws_security_group" "lb_sg" {
+  name        = "demo1-lb-sg"
+  description = "AWS Meetup - demo1 - lb security group"
+  vpc_id      = "${aws_vpc.vpc.id}"
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags {
+    Name        = "demo1-lb-sg"
+    Environment = "demo1"
   }
 }
 
@@ -253,4 +213,36 @@ resource "aws_alb_target_group_attachment" "www_2_target" {
   target_group_arn = "${aws_alb_target_group.lb_tg.arn}"
   target_id        = "${aws_instance.www_2.id}"
   port             = 80
+}
+
+resource "aws_security_group" "www_sg" {
+  name        = "demo1-www-sg"
+  description = "AWS Meetup - demo1 - www security group"
+  vpc_id      = "${aws_vpc.vpc.id}"
+
+  ingress {
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = ["${aws_security_group.lb_sg.id}"]
+  }
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["68.96.28.240/32"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags {
+    Name        = "demo1-www-sg"
+    Environment = "demo1"
+  }
 }

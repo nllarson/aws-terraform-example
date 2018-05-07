@@ -59,67 +59,6 @@ resource "aws_route_table_association" "public_subnet_association" {
 }
 
 ##################################
-# SECURITY GROUPS
-##################################
-
-resource "aws_security_group" "lb_sg" {
-  name        = "${var.environment}-lb-sg"
-  description = "AWS Meetup - ${var.environment} - lb security group"
-  vpc_id      = "${aws_vpc.vpc.id}"
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags {
-    Name        = "${var.environment}-lb-sg"
-    Environment = "${var.environment}"
-  }
-}
-
-resource "aws_security_group" "www_sg" {
-  name        = "${var.environment}-www-sg"
-  description = "AWS Meetup - ${var.environment} - www security group"
-  vpc_id      = "${aws_vpc.vpc.id}"
-
-  ingress {
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
-    security_groups = ["${aws_security_group.lb_sg.id}"]
-  }
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["68.96.28.240/32"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags {
-    Name        = "${var.environment}-www-sg"
-    Environment = "${var.environment}"
-  }
-}
-
-##################################
 # LOAD BALANCER
 ##################################
 
@@ -176,6 +115,31 @@ resource "aws_alb_listener_rule" "lb-listener-rule" {
   }
 }
 
+resource "aws_security_group" "lb_sg" {
+  name        = "${var.environment}-lb-sg"
+  description = "AWS Meetup - ${var.environment} - lb security group"
+  vpc_id      = "${aws_vpc.vpc.id}"
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags {
+    Name        = "${var.environment}-lb-sg"
+    Environment = "${var.environment}"
+  }
+}
+
 ##################################
 # EC2
 ##################################
@@ -210,4 +174,36 @@ resource "aws_alb_target_group_attachment" "www_target" {
   target_group_arn = "${aws_alb_target_group.lb_tg.arn}"
   target_id        = "${element(aws_instance.www.*.id, count.index)}"
   port             = 80
+}
+
+resource "aws_security_group" "www_sg" {
+  name        = "${var.environment}-www-sg"
+  description = "AWS Meetup - ${var.environment} - www security group"
+  vpc_id      = "${aws_vpc.vpc.id}"
+
+  ingress {
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = ["${aws_security_group.lb_sg.id}"]
+  }
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["68.96.28.240/32"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags {
+    Name        = "${var.environment}-www-sg"
+    Environment = "${var.environment}"
+  }
 }
