@@ -13,5 +13,5 @@ variable "availability_zones" {
 variable "whitelisted_ips" {
   type        = "list"
   description = "Whitelisted IPs"
-  default     = ["68.96.28.240/32", "98.161.40.116/32"]
+  default     = ["68.96.28.240/32"]
 }
