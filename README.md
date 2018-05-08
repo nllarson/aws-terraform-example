@@ -37,6 +37,8 @@ Leveraging modules is great!  Seperation of concerns across the infrastructure c
 
  :white_check_mark: 2 EC2 Instances distributed between AZs, behind loadbalancer
 
+----
+
 ### Links / References
 [Providers](https://www.terraform.io/docs/configuration/providers.html)
 
