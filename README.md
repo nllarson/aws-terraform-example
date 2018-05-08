@@ -27,11 +27,14 @@ Leveraging modules is great!  Seperation of concerns across the infrastructure c
 
 #### Networking Tier
  :white_check_mark: 1 VPC
+
  :white_check_mark: 2 public subnets (us-east-1a, us-east-1b)
+
  :white_check_mark: Internet Gateway
 
 #### Application Tier
  :white_check_mark: Application Load Balancer
+
  :white_check_mark: 2 EC2 Instances distributed between AZs, behind loadbalancer
 
 ### Links / References
