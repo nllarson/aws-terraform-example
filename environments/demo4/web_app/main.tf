@@ -2,6 +2,20 @@ provider "aws" {
   profile = "aws-meetup"
 }
 
+
+##################################
+# S3 Backend
+##################################
+
+terraform {
+  backend "s3" {
+    bucket  = "aws-meetup-terraform-state"
+    key     = "demos/demo4/web_app/terraform.tfstate"
+    region  = "us-east-1"
+    profile = "aws-meetup"
+  }
+}
+
 data "aws_vpc" "vpc" {
   tags {
     Name        = "${var.environment}-vpc"
